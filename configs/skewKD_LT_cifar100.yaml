@@ -1,0 +1,123 @@
+
+NAME: ''
+OUTPUT_DIR: './output/LongTail/LT/cifar100/ResNet32/rate-100/BKD/test2'
+SHOW_STEP: 50
+SAVE_STEP: 100
+VALID_STEP: 25
+INPUT_SIZE: (32, 32)
+COLOR_SPACE: 'RGB'
+CPU_MODE: False
+use_best_model: False
+checkpoints: ''
+save_model: False
+exp_name: "LT"
+approach: "BKD"
+#approach: "BSCE+O2MIM-VKD"
+#approach: "cRT"
+# ----- DATASET BUILDER -----
+DATASET:
+  dataset: "Torchvision_Datasets_Split"
+  dataset_name: "CIFAR100"                  #mnist, mnist28, CIFAR10, CIFAR100, imagenet, svhn, tiny
+  data_root: "/data0/user/kcli/Datasets"
+  all_classes: 100
+  all_tasks: 100
+  split_seed: 0
+  val_length: 0
+  use_Contra_train_transform: False
+  LT_classes_split: [50, 50]
+  LT_classes_sample_num: [5, 500]
+  tail_oversampl_batchzise: 32
+
+# ----- pre-train setting -----
+PRETRAINED:
+  use_pretrained_model: False
+  MODEL: ""
+
+# ----- teacher BUILDER -----
+teacher:
+#  approach: "CE"
+#  approach: "LA"
+  approach: "LogitAdjust"
+  tau: 1.
+#  teacher_model_path: ""
+  teacher_model_path: "/data0/user/kcli/CL_research/QuintCDKD/reuse-model/cifar100-rate100-bsce.pth"
+  extractor:
+    TYPE: "res32_cifar"
+    rate: 1.
+    output_feature_dim: 64
+
+  #-----teacher TRAIN -----'''
+  TRAIN:
+    BATCH_SIZE: 128
+    MAX_EPOCH: 160
+    NUM_WORKERS: 4
+    SHUFFLE: True
+    # ----- OPTIMIZER -----
+    OPTIMIZER:
+      TYPE: 'SGD'
+      BASE_LR: 0.1
+      MOMENTUM: 0.9
+      WEIGHT_DECAY: 2e-4
+    # ----- LR_SCHEDULER -----
+    LR_SCHEDULER:
+      TYPE: 'warmup'
+      LR_STEP: [40, 80, 110, 140]
+      LR_FACTOR: 0.1
+      WARM_EPOCH: 5
+
+# ----- student BUILDER -----'''
+
+# ----- extractor BUILDER -----
+extractor:
+  TYPE: "res32_cifar"
+  rate: 1.
+  output_feature_dim: 64
+
+
+# ----- Mixup -----
+Remix:
+  mixup_alpha1: 1.
+  mixup_alpha2: 1.
+  kappa: 3
+  tau: 0.25
+
+model:
+  use_mixup: False
+  use_skewKD: False
+  oversample: False
+  use_weight_lams: False
+  adjusted_layer_type: "para-2"
+  use_adjusted_KD: False
+  #-----stu TRAIN -----'''
+  beta: 0.96
+  use_distill: True
+  use_cls: True
+  fine_tune_classifier: False
+  TRAIN:
+    pow: 0.5
+    tradeoff_rate: 0.5
+    BATCH_SIZE: 128
+    MAX_EPOCH: 160
+    NUM_WORKERS: 4
+    SHUFFLE: True
+    out_KD_temp: 2.
+    target_KD_temp: 2.
+    # ----- OPTIMIZER -----
+    OPTIMIZER:
+      TYPE: 'SGD'
+      BASE_LR: 0.1
+      MOMENTUM: 0.9
+      WEIGHT_DECAY: 2e-4
+    # ----- LR_SCHEDULER -----
+    LR_SCHEDULER:
+      TYPE: 'warmup'
+      LR_STEP: [40, 80, 110, 140]
+      LR_FACTOR: 0.1
+      WARM_EPOCH: 5
+
+# ----- classifier BUILDER -----'''
+classifier:
+  bias: True
+#  classifier_type: "CosineLinear"
+  classifier_type: "linear"
+  LOSS_TYPE: "CrossEntropy"

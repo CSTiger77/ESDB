@@ -1,0 +1,138 @@
+
+NAME: ''
+OUTPUT_DIR: './output/SSIL-skewIM-bsce-oversample/cifar100/ResNet32/Base0/500-task5/tau-0.5/fix-rho/rho-1'
+SHOW_STEP: 50
+SAVE_STEP: 100
+VALID_STEP: 25
+INPUT_SIZE: (32, 32)
+COLOR_SPACE: 'RGB'
+CPU_MODE: False
+use_best_model: False
+task1_MODEL: "/data0/user/kcli/CL_research/QuintCDKD/reuse-model/cifar100-base0-task5-base_latest_model.pth"
+#task1_MODEL: "/data0/user/kcli/CL_research/QuintCDKD/reuse-model/cifar100-base0-task10-base_latest_model.pth"
+#task1_MODEL: "/data0/user/kcli/CL_research/QuintCDKD/reuse-model/cifar100-base0-task20-base_latest_model.pth"
+use_base_half: False
+checkpoints: ''
+save_model: False
+use_Contra_train_transform: False
+train_first_task: False
+oversample_type: 1
+cutmix_prob: 0.5
+#approach: "SSIL-skewIM-bsce"
+approach: "SSIL-skewIM-bsce-oversample"
+# ----- DATASET BUILDER -----
+
+DATASET:
+  dataset: "Torchvision_Datasets_Split"
+  dataset_name: "CIFAR100"                  #mnist, mnist28, CIFAR10, CIFAR100, imagenet, svhn, tiny
+  data_root: "/data0/user/kcli/Datasets"
+  all_classes: 100
+  all_tasks: 5
+  split_seed: 0
+  val_length: 0
+# ----- resume -----
+
+RESUME:
+  use_resume: False
+  resumed_file: ""
+  resumed_model_path: ""
+
+
+# ----- pre-train setting -----
+PRETRAINED:
+  use_pretrained_model: False
+  MODEL: ""
+
+# ----- exemplar_manager -----
+exemplar_manager:
+  store_original_imgs: True
+  memory_budget: 500
+  mng_approach: "herding"     #herding, random, kmeans, confidence, rainbow
+#  mng_approach: "random"      #herding, random, kmeans, confidence, rainbow
+#  mng_approach: "kmeans"      #herding, random, kmeans, confidence, rainbow
+#  mng_approach: "confidence"     #herding, random, kmeans, confidence, rainbow
+#  mng_approach: "rainbow"      #herding, random, kmeans, confidence, rainbow
+  norm_exemplars: True
+  centroid_order: ""   #herding, distance, None
+  fixed_exemplar_num: -1
+  BATCH_SIZE: 32
+  hard_rate: 1.
+  split_block_nums: 2
+
+# ----- extractor BUILDER -----
+extractor:
+  TYPE: "res32_cifar"
+  rate: 1.
+  output_feature_dim: 64
+  last_relu: True
+
+# ----- Mixup -----
+Remix:
+  mixup_alpha1: 1.
+  mixup_alpha2: 1.
+  kappa: 3
+  tau: 0.5
+
+# ----- classifier BUILDER -----
+classifier:
+  bias: True
+#  classifier_type: "CosineLinear"
+  classifier_type: "linear"
+  #classifier_type: "cosine"
+  LOSS_TYPE: "CrossEntropy"
+  proxy_per_class: 10
+  distance: "neg_stable_cosine_distance"
+  merging: "softmax"
+
+#----- model -----
+model:
+  beta: 0.96
+  mixup_type: 0
+  use_skewKD: True
+  use_bsce: True
+  use_weight_lams: True
+  adjusted_layer_type: "para-2"
+  use_adjusted_logits_for_cls: False
+  remix_cls: False
+  exemplar_batch_size: 128
+  use_adjusted_KD: False
+  TRAIN:
+    tradeoff_rate: 1.
+    BATCH_SIZE: 128
+    MAX_EPOCH: 160
+    NUM_WORKERS: 1
+    SHUFFLE: True
+    use_binary_distill: False
+    out_KD_temp: 2.
+    target_KD_temp: 2.
+    OPTIMIZER:
+      TYPE: 'SGD'
+      BASE_LR: 0.1
+      MOMENTUM: 0.9
+      WEIGHT_DECAY: 2e-4
+    LR_SCHEDULER:
+      TYPE: 'warmup'
+      LR_STEP: [60, 100, 130, 150]
+      #LR_STEP: [50, 90, 120, 140]
+      LR_FACTOR: 0.1
+      WARM_EPOCH: 5
+
+  eeil_finetune_train:
+    BATCH_SIZE: 128
+    MAX_EPOCH: 100
+    NUM_WORKERS: 4
+    SHUFFLE: True
+    use_binary_distill: False
+    out_KD_temp: 2.
+    target_KD_temp: 2.
+    OPTIMIZER:
+      TYPE: 'SGD'
+      BASE_LR: 0.01
+      MOMENTUM: 0.9
+      WEIGHT_DECAY: 2e-4
+    LR_SCHEDULER:
+      TYPE: 'warmup'
+      LR_STEP: [ 30, 60, 80 ]
+      LR_FACTOR: 0.1
+      WARM_EPOCH: 5
+

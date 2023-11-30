@@ -1,0 +1,125 @@
+
+NAME: ''
+OUTPUT_DIR: './output/LongTail/LT/ReKD/tiny/ResNet18/rate-100/bsce-BKD/test2'
+SHOW_STEP: 50
+SAVE_STEP: 100
+VALID_STEP: 25
+INPUT_SIZE: (64, 64)
+COLOR_SPACE: 'RGB'
+CPU_MODE: False
+use_best_model: False
+checkpoints: ''
+save_model: False
+exp_name: "LT"
+#approach: "BSCE+MBKD"
+#approach: "BSCE+O2MIM-VKD"
+#approach: "cRT"
+#approach: "LA"
+#approach: "SRCE"
+approach: "BSCE+BKD"
+# ----- DATASET BUILDER -----
+DATASET:
+  dataset: "Local_Datasets_Split"
+  dataset_name: "tiny_imagenet"                  #mnist, mnist28, CIFAR10, CIFAR100, imagenet, svhn, tiny
+  data_json_file: '/data0/user/kcli/Datasets/tiny-imagenet-200/tiny_imagenet_200_dataset_train_val_rate_100.json'
+  balanced_val_data_json_file: ''
+  data_root: "/data0/user/kcli/Datasets/tiny-imagenet-200"
+  all_classes: 200
+  all_tasks: 200
+  split_seed: 0
+  val_length: 0
+  use_Contra_train_transform: False
+  LT_classes_split: [ 100, 100 ]
+  LT_classes_sample_num: [ 5, 500 ]
+  tail_oversampl_batchzise: 32
+
+# ----- pre-train setting -----
+PRETRAINED:
+  use_pretrained_model: False
+  MODEL: ""
+
+# ----- teacher BUILDER -----
+teacher:
+  approach: "LogitAdjust"
+  teacher_model_path: "/data0/user/kcli/CL_research/QuintCDKD/reuse-model/tiny-rate100-BSCE-teacher.pth"
+  extractor:
+    TYPE: 'resnet18'
+    rate: 1.
+    output_feature_dim: 512
+
+  #-----teacher TRAIN -----'''
+  TRAIN:
+    BATCH_SIZE: 128
+    MAX_EPOCH: 250
+    NUM_WORKERS: 4
+    SHUFFLE: True
+    # ----- OPTIMIZER -----
+    OPTIMIZER:
+      TYPE: 'SGD'
+      BASE_LR: 0.1
+      MOMENTUM: 0.9
+      WEIGHT_DECAY: 1e-4
+    # ----- LR_SCHEDULER -----
+    LR_SCHEDULER:
+      TYPE: 'warmup'
+      LR_STEP: [75, 125, 175, 225]
+      LR_FACTOR: 0.1
+      #LR_STEP: [ 60, 100, 140, 170]
+      #LR_FACTOR: 0.1
+      WARM_EPOCH: 5
+
+#-----stu extractor builder -----'''
+extractor:
+  TYPE: 'resnet18'
+  rate: 1.
+  output_feature_dim: 512
+
+
+# ----- Mixup -----
+Remix:
+  mixup_alpha1: 1.
+  mixup_alpha2: 1.
+  kappa: 3
+  tau: 0.25
+
+# ----- student BUILDER -----'''
+
+model:
+  use_mixup: False
+  use_skewKD: False
+  oversample: False
+  use_weight_lams: False
+  adjusted_layer_type: "para-2"
+  use_adjusted_KD: False
+  #-----stu TRAIN -----'''
+  beta: 0.97
+  use_distill: True
+  use_cls: True
+  fine_tune_classifier: False
+  TRAIN:
+    BATCH_SIZE: 128
+    MAX_EPOCH: 250
+    NUM_WORKERS: 4
+    SHUFFLE: True
+    # ----- OPTIMIZER -----
+    OPTIMIZER:
+      TYPE: 'SGD'
+      BASE_LR: 0.1
+      MOMENTUM: 0.9
+      WEIGHT_DECAY: 1e-4
+    # ----- LR_SCHEDULER -----
+    LR_SCHEDULER:
+      TYPE: 'warmup'
+      LR_STEP: [ 75, 125, 175, 225 ]
+      LR_FACTOR: 0.1
+      #LR_STEP: [ 60, 100, 140, 170]
+      #LR_FACTOR: 0.1
+      WARM_EPOCH: 5
+
+# ----- classifier BUILDER -----'''
+classifier:
+  bias: True
+#  classifier_type: "CosineLinear"
+  classifier_type: "linear"
+#  LOSS_TYPE: "CrossEntropy"
+  LOSS_TYPE: "bsce"

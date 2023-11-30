@@ -1,0 +1,110 @@
+
+NAME: ''
+OUTPUT_DIR: './output/SSIL-skewIM-bsce-oversample/imagenet-100/ResNet18/Base0/200-task10/tau-0.25/test1'
+SHOW_STEP: 50
+SAVE_STEP: 100
+VALID_STEP: 25
+INPUT_SIZE: (224,224)
+COLOR_SPACE: 'RGB'
+CPU_MODE: False
+use_best_model: False
+task1_MODEL: "/share/home/kcli/CL_research/QuintCDKD/reuse-model/imagent100-base0-task10-base_latest_model.pth"
+use_base_half: False
+checkpoints: ''
+save_model: False
+use_Contra_train_transform: False
+train_first_task: False
+approach: "SSIL-skewIM-bsce-oversample"
+cutmix_prob: 0.5
+oversample_type: 0
+# ----- DATASET BUILDER -----
+
+DATASET:
+  dataset: "Local_Datasets_Split_Per_Class"
+  dataset_name: "imagenet"                  #mnist, mnist28, CIFAR10, CIFAR100, imagenet, svhn, tiny
+  data_json_file: '/data0/user/kcli/Dataset/imagenet/podnet_imagenet100_forCL.json'
+  data_root: "/data0/share/datasets/ImageNet/"
+  all_classes: 100
+  all_tasks: 10
+  split_seed: 0
+  val_length: 0
+# ----- resume -----
+
+RESUME:
+  use_resume: False
+  resumed_file: ""
+  resumed_model_path: ""
+
+# ----- pre-train setting -----
+PRETRAINED:
+  use_pretrained_model: False
+  MODEL: ""
+
+# ----- exemplar_manager -----
+exemplar_manager:
+  store_original_imgs: False
+  memory_budget: 200
+  mng_approach: "herding"      #herding, random, kmeans
+  #mng_approach: "random"      #herding, random, kmeans
+  norm_exemplars: True
+  centroid_order: "herding"   #herding, distance, None
+  fixed_exemplar_num: -1
+  BATCH_SIZE: 32
+
+# ----- extractor BUILDER -----
+extractor:
+  TYPE: 'resnet18'
+
+  rate: 1.
+  output_feature_dim: 512
+  last_relu: True
+
+# ----- Mixup -----
+Remix:
+  mixup_alpha1: 1.
+  mixup_alpha2: 1.
+  kappa: 3
+  tau: 0.25
+
+# ----- classifier BUILDER -----
+classifier:
+  bias: True
+#  classifier_type: "CosineLinear"
+  classifier_type: "linear"
+  #classifier_type: "cosine"
+  LOSS_TYPE: "CrossEntropy"
+  proxy_per_class: 10
+  distance: "neg_stable_cosine_distance"
+  merging: "softmax"
+
+#----- model -----
+model:
+  mixup_type: 0
+  use_skewKD: False
+  use_bsce: True
+  use_weight_lams: True
+  adjusted_layer_type: "para-2"
+  use_adjusted_logits_for_cls: False
+  remix_cls: False
+  exemplar_batch_size: 32
+  use_adjusted_KD: True
+  TRAIN:
+    tradeoff_rate: 1.
+    BATCH_SIZE: 64
+    MAX_EPOCH: 110
+    NUM_WORKERS: 8
+    SHUFFLE: True
+    use_binary_distill: False
+    out_KD_temp: 2.
+    target_KD_temp: 2.
+    OPTIMIZER:
+      TYPE: 'SGD'
+      BASE_LR: 0.1
+      MOMENTUM: 0.9
+      WEIGHT_DECAY: 1e-4
+    LR_SCHEDULER:
+      TYPE: 'warmup'
+      LR_STEP: [ 35, 65, 85, 95 ]
+      LR_FACTOR: 0.1
+      WARM_EPOCH: 5
+

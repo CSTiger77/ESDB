@@ -1,0 +1,104 @@
+
+NAME: ''
+exp_name: "LT-KD"
+OUTPUT_DIR: './output/LongTail/LT-KD/BSCE+BKD/cifar10/ResNet32/rate-100/test1'
+SHOW_STEP: 50
+SAVE_STEP: 100
+VALID_STEP: 25
+INPUT_SIZE: (32, 32)
+COLOR_SPACE: 'RGB'
+CPU_MODE: False
+use_best_model: False
+checkpoints: ''
+save_model: False
+#approach: "VKD"
+#approach: "CE+VKD"
+#approach: "BSCE+MBKD"
+#approach: "BSCE+O2MIM-VKD"
+#approach: "BSCE+O2MIM-BKD"
+approach: "BSCE+BKD"
+# ----- DATASET BUILDER -----
+DATASET:
+  dataset: "Torchvision_Datasets_Split"
+  dataset_name: "CIFAR10"                  #mnist, mnist28, CIFAR10, CIFAR100, imagenet, svhn, tiny
+  data_root: "/data0/user/kcli/Datasets"
+  all_classes: 10
+  all_tasks: 10
+  split_seed: 0
+  val_length: 0
+  use_Contra_train_transform: False
+  LT_classes_split: [5, 5]
+  LT_classes_sample_num: [50, 5000]
+  tail_oversampl_batchzise: 32
+
+# ----- pre-train setting -----
+PRETRAINED:
+  use_pretrained_model: False
+  MODEL: ""
+
+# ----- teacher BUILDER -----
+teacher:
+  teacher_model_path: "/data0/user/kcli/CL_research/QuintCDKD/reuse-model/cifar10_task1_resnet32.pth"
+  extractor:
+    TYPE: "res32_cifar"
+    rate: 1.
+    output_feature_dim: 64
+
+# ----- student BUILDER -----'''
+
+# ----- extractor BUILDER -----
+extractor:
+  #TYPE: 'resnet18'
+  #TYPE: "resnet34"
+  TYPE: "res32_cifar"
+  #TYPE: "podnet_res32_cifar_rate"
+  rate: 1.
+  output_feature_dim: 64
+
+
+# ----- Mixup -----
+Remix:
+  mixup_alpha1: 1.
+  mixup_alpha2: 1.
+  kappa: 3
+  tau: 0.75
+
+model:
+  use_mixup: False
+  use_skewKD: False
+  oversample: False
+  use_weight_lams: True
+  adjusted_layer_type: "para-2"
+  use_adjusted_KD: True
+  #-----stu TRAIN -----'''
+  beta: 0.96
+  use_distill: True
+  use_cls: True
+  fine_tune_classifier: False
+  TRAIN:
+    tradeoff_rate: 1.
+    BATCH_SIZE: 128
+    MAX_EPOCH: 160
+    NUM_WORKERS: 4
+    SHUFFLE: True
+    out_KD_temp: 2.
+    target_KD_temp: 2.
+    # ----- OPTIMIZER -----
+    OPTIMIZER:
+      TYPE: 'SGD'
+      BASE_LR: 0.1
+      MOMENTUM: 0.9
+      WEIGHT_DECAY: 2e-4
+    # ----- LR_SCHEDULER -----
+    LR_SCHEDULER:
+      TYPE: 'warmup'
+      LR_STEP: [ 60, 100, 130 ]
+      LR_FACTOR: 0.1
+      WARM_EPOCH: 5
+
+# ----- classifier BUILDER -----'''
+classifier:
+  bias: True
+#  classifier_type: "CosineLinear"
+  classifier_type: "linear"
+  LOSS_TYPE: "CrossEntropy"
