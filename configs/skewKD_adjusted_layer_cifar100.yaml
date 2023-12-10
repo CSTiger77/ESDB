@@ -1,6 +1,6 @@
 
 NAME: ''
-OUTPUT_DIR: './output/SSIL-skewIM-bsce-oversample/cifar100/ResNet32/Base0/500-task5/tau-0.5/fix-rho/rho-1'
+OUTPUT_DIR: './output/SSIL-skewIM-bsce-oversample/cifar100/ResNet32/Base0/500-task5/tau-0.5/test2'
 SHOW_STEP: 50
 SAVE_STEP: 100
 VALID_STEP: 25

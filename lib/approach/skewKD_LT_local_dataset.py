@@ -10,15 +10,13 @@ from torch.backends import cudnn
 from torch.utils.data import ConcatDataset, DataLoader
 import numpy as np
 
-from lib.model import BarlowTwins, resnet_model, resnet_model_with_adjusted_layer
-from lib.model.loss import sup_barlowtwin_loss, CrossEntropy_binary, CrossEntropy, sup_barlowtwins_kd_loss, \
-    SoftTarget_CrossEntropy, loss_fn_kd, loss_fn_kd_binary, loss_fn_kd_KL, mixup_criterion_iCaRL, \
+from lib.model import resnet_model, resnet_model_with_adjusted_layer
+from lib.model.loss import CrossEntropy_binary, CrossEntropy, loss_fn_kd, mixup_criterion_iCaRL, \
     compute_distill_binary_loss, compute_cls_binary_loss, BalancedSoftmax, dive_loss, BKD
-from lib.utils import AverageMeter, accuracy, LARS
-from lib.dataset import ExemplarDataset, SubDataset, TransformedDataset, AVAILABLE_TRANSFORMS, transforms, \
-    TransformedDataset_for_exemplars, Transformed_2_Dataset
+from lib.utils import AverageMeter
+from lib.dataset import TransformedDataset, AVAILABLE_TRANSFORMS, transforms
 from lib.utils.utils import get_optimizer, get_scheduler, skew_pre_model_output_for_distill, \
-    construct_sample_num_per_class, construct_LT_dataset, construct_label_weight, strore_features, \
+    construct_LT_dataset, construct_label_weight, strore_features, \
     find_sample_num_per_class, construct_effective_weight_per_class, construct_LT_train_dataset_split
 
 

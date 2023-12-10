@@ -22,8 +22,8 @@ def parse_args():
         help="decide which cfg to use",
         required=False,
         # default="./configs/skewKD_adjusted_layer_cifar10.yaml",
-        # default="./configs/skewKD_adjusted_layer_cifar100.yaml",
-        default="./configs/skewKD_adjusted_layer_tiny.yaml",
+        default="./configs/skewKD_adjusted_layer_cifar100.yaml",
+        # default="./configs/skewKD_adjusted_layer_tiny.yaml",
         # default="./configs/skewKD_adjusted_layer_imagenet.yaml",
         type=str,
     )
@@ -42,6 +42,7 @@ if __name__ == "__main__":
     update_config(skewKD_adjusted_layer_cfg, args)
     logger, log_file = create_logger(skewKD_adjusted_layer_cfg, "log")
     warnings.filterwarnings("ignore")
+    # split_seleted_data = {0: [52, 1, 30, 96], 1: [4, 5, 6, 7], 2: [8, 9, 10, 11], 3: [12, 13, 14, 15], 4: [16, 17, 18, 19], 5: [20, 21, 22, 23], 6: [24, 25, 26, 27], 7: [28, 29, 2, 31], 8: [32, 33, 34, 35], 9: [36, 37, 38, 39], 10: [40, 41, 42, 43], 11: [44, 45, 46, 47], 12: [48, 49, 50, 51], 13: [0, 53, 54, 55], 14: [56, 57, 58, 59], 15: [60, 61, 62, 63], 16: [64, 65, 66, 67], 17: [68, 69, 70, 71], 18: [72, 73, 74, 75], 19: [76, 77, 78, 79], 20: [80, 81, 82, 83], 21: [84, 85, 86, 87], 22: [88, 89, 90, 91], 23: [92, 93, 94, 95], 24: [3, 97, 98, 99]}
     split_seleted_data = None
     dataset_split_handler = eval(skewKD_adjusted_layer_cfg.DATASET.dataset)(skewKD_adjusted_layer_cfg,
                                                                             split_selected_data=split_seleted_data)
