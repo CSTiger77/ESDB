@@ -922,7 +922,8 @@ class skewKD_handler:
                                                                            temp=self.cfg.model.TRAIN.out_KD_temp)
                         loss = mixup_cls_loss + mixup_distill_loss
                 elif 1 == self.cfg.model.mixup_type:
-                    mixup_imgs, mixup_labels_a, mixup_labels_b, all_lams, remix_lams, img_index, weight_lams \
+                    # imgs, y_a, y_b, all_lams, remix_lams, img_index, rand_index, weight_lams
+                    mixup_imgs, mixup_labels_a, mixup_labels_b, all_lams, remix_lams, img_index, rand_index, weight_lams \
                         = self.re_cutmix_imgs(x, y, label_weight,
                                               beta=self.cfg.Remix.mixup_alpha1,
                                               kappa=self.cfg.Remix.kappa,
